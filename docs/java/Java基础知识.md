@@ -3,8 +3,6 @@
 <!-- TOC -->
 
 - [1. 面向对象和面向过程的区别](#1-面向对象和面向过程的区别)
-    - [面向过程](#面向过程)
-    - [面向对象](#面向对象)
 - [2. Java 语言有哪些特点?](#2-java-语言有哪些特点)
 - [3. 关于 JVM JDK 和 JRE 最详细通俗的解答](#3-关于-jvm-jdk-和-jre-最详细通俗的解答)
     - [JVM](#jvm)
@@ -49,8 +47,9 @@
     - [异常处理总结](#异常处理总结)
 - [33 Java序列化中如果有些字段不想进行序列化，怎么办？](#33-java序列化中如果有些字段不想进行序列化怎么办)
 - [34 获取用键盘输入常用的两种方法](#34-获取用键盘输入常用的两种方法)
-- [35 Java 中 IO 流分为几种?BIO,NIO,AIO 有什么区别?](#35-java-中-io-流分为几种bionioaio-有什么区别)
-    - [java 中 IO 流分为几种?](#java-中-io-流分为几种)
+- [35 Java 中 IO 流](#35-java-中-io-流)
+    - [Java 中 IO 流分为几种?](#java-中-io-流分为几种)
+    - [既然有了字节流,为什么还要有字符流?](#既然有了字节流为什么还要有字符流)
     - [BIO,NIO,AIO 有什么区别?](#bionioaio-有什么区别)
 - [36. 常见关键字总结:static,final,this,super](#36-常见关键字总结staticfinalthissuper)
 - [37. Collections 工具类和 Arrays 工具类常见方法总结](#37-collections-工具类和-arrays-工具类常见方法总结)
@@ -80,6 +79,8 @@
 6. 支持多线程（ C++ 语言没有内置的多线程机制，因此必须调用操作系统的多线程功能来进行多线程程序设计，而 Java 语言却提供了多线程支持）；
 7. 支持网络编程并且很方便（ Java 语言诞生本身就是为简化网络编程设计的，因此 Java 语言不仅支持网络编程而且很方便）；
 8. 编译与解释并存；
+
+> 修正（参见： [issue#544](https://github.com/Snailclimb/JavaGuide/issues/544)）：C++11开始（2011年的时候）,C++就引入了多线程库，在windows、linux、macos都可以使用`std::thread`和`std::async`来创建线程。参考链接：http://www.cplusplus.com/reference/thread/thread/?kw=thread
 
 ## 3. 关于 JVM JDK 和 JRE 最详细通俗的解答
 
@@ -339,9 +340,9 @@ hashCode() 的作用是获取哈希码，也称为散列码；它实际上是返
 
 ### 为什么要有 hashCode
 
-**我们先以“HashSet 如何检查重复”为例子来说明为什么要有 hashCode：** 当你把对象加入 HashSet 时，HashSet 会先计算对象的 hashcode 值来判断对象加入的位置，同时也会与其他已经加入的对象的 hashcode 值作比较，如果没有相符的hashcode，HashSet会假设对象没有重复出现。但是如果发现有相同 hashcode 值的对象，这时会调用 `equals（）`方法来检查 hashcode 相等的对象是否真的相同。如果两者相同，HashSet 就不会让其加入操作成功。如果不同的话，就会重新散列到其他位置。（摘自我的Java启蒙书《Head first java》第二版）。这样我们就大大减少了 equals 的次数，相应就大大提高了执行速度。
+**我们先以“HashSet 如何检查重复”为例子来说明为什么要有 hashCode：** 当你把对象加入 HashSet 时，HashSet 会先计算对象的 hashcode 值来判断对象加入的位置，同时也会与其他已经加入的对象的 hashcode 值作比较，如果没有相符的hashcode，HashSet会假设对象没有重复出现。但是如果发现有相同 hashcode 值的对象，这时会调用 `equals()`方法来检查 hashcode 相等的对象是否真的相同。如果两者相同，HashSet 就不会让其加入操作成功。如果不同的话，就会重新散列到其他位置。（摘自我的Java启蒙书《Head first java》第二版）。这样我们就大大减少了 equals 的次数，相应就大大提高了执行速度。
 
-通过我们可以看出：`hashCode()` 的作用就是**获取哈希码**，也称为散列码；它实际上是返回一个int整数。这个**哈希码的作用**是确定该对象在哈希表中的索引位置。**`hashCode() `在散列表中才有用，在其它情况下没用。**在散列表中hashCode() 的作用是获取对象的散列码，进而确定该对象在散列表中的位置。
+通过我们可以看出：`hashCode()` 的作用就是**获取哈希码**，也称为散列码；它实际上是返回一个int整数。这个**哈希码的作用**是确定该对象在哈希表中的索引位置。**`hashCode() `在散列表中才有用，在其它情况下没用**。在散列表中hashCode() 的作用是获取对象的散列码，进而确定该对象在散列表中的位置。
 
 ### hashCode（）与equals（）的相关规定
 
@@ -384,7 +385,7 @@ Java 线程在运行的生命周期中的指定时刻只可能处于下面6种�
 
 线程创建之后它将处于 **NEW（新建）** 状态，调用 `start()` 方法后开始运行，线程这时候处于 **READY（可运行）** 状态。可运行状态的线程获得了 cpu 时间片（timeslice）后就处于 **RUNNING（运行）** 状态。
 
-> 操作系统隐藏 Java虚拟机（JVM）中的 RUNNABLE 和 RUNNING 状态，它只能看到 RUNNABLE 状态（图源：[HowToDoInJava](https://howtodoinjava.com/)：[Java Thread Life Cycle and Thread States](https://howtodoinjava.com/java/multi-threading/java-thread-life-cycle-and-thread-states/)），所以 Java 系统一般将这两个状态统称为 **RUNNABLE（运行中）** 状态 。
+> 操作系统隐藏 Java虚拟机（JVM）中的 READY 和 RUNNING 状态，它只能看到 RUNNABLE 状态（图源：[HowToDoInJava](https://howtodoinjava.com/)：[Java Thread Life Cycle and Thread States](https://howtodoinjava.com/java/multi-threading/java-thread-life-cycle-and-thread-states/)），所以 Java 系统一般将这两个状态统称为 **RUNNABLE（运行中）** 状态 。
 
 ![RUNNABLE-VS-RUNNING](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-3/RUNNABLE-VS-RUNNING.png)
 
@@ -418,9 +419,9 @@ final关键字主要用在三个地方：变量、方法、类。
 
 ### Throwable类常用方法
 
-- **public string getMessage()**:返回异常发生时的详细信息
-- **public string toString()**:返回异常发生时的简要描述
-- **public string getLocalizedMessage()**:返回异常对象的本地化信息。使用Throwable的子类覆盖这个方法，可以声称本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与getMessage（）返回的结果相同
+- **public string getMessage()**:返回异常发生时的简要描述
+- **public string toString()**:返回异常发生时的详细信息
+- **public string getLocalizedMessage()**:返回异常对象的本地化信息。使用Throwable的子类覆盖这个方法，可以生成本地化信息。如果子类没有覆盖该方法，则该方法返回的信息与getMessage（）返回的结果相同
 - **public void printStackTrace()**:在控制台上打印Throwable对象封装的异常信息
 
 ### 异常处理总结
@@ -478,9 +479,9 @@ BufferedReader input = new BufferedReader(new InputStreamReader(System.in));
 String s = input.readLine(); 
 ```
 
-## 35 Java 中 IO 流分为几种?BIO,NIO,AIO 有什么区别?
+## 35 Java 中 IO 流
 
-### java 中 IO 流分为几种?
+### Java 中 IO 流分为几种?
 
    - 按照流的流向分，可以分为输入流和输出流；
    - 按照操作单元划分，可以划分为字节流和字符流；
@@ -500,6 +501,12 @@ Java Io流共涉及40多个类，这些类看上去很杂乱，但实际上很�
 
 ![IO-操作对象分类](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/IO-操作对象分类.png)
 
+### 既然有了字节流,为什么还要有字符流?
+
+问题本质想问：**不管是文件读写还是网络发送接收，信息的最小存储单元都是字节，那为什么 I/O 流操作要分为字节流操作和字符流操作呢？**
+
+回答：字符流是由 Java 虚拟机将字节转换得到的，问题就出在这个过程还算是非常耗时，并且，如果我们不知道编码类型就很容易出现乱码问题。所以， I/O 流就干脆提供了一个直接操作字符的接口，方便我们平时对字符进行流操作。如果音频文件、图片等媒体文件用字节流比较好，如果涉及到字符的话使用字符流比较好。
+
 ### BIO,NIO,AIO 有什么区别?
 
 - **BIO (Blocking I/O):** 同步阻塞I/O模式，数据的读取写入必须阻塞在一个线程内等待其完成。在活动连接数不是特别高（小于单机1000）的情况下，这种模型是比较不错的，可以让每一个连接专注于自己的 I/O 并且编程模型简单，也不用过多考虑系统的过载、限流等问题。线程池本身就是一个天然的漏斗，可以缓冲一些系统处理不了的连接或请求。但是，当面对十万甚至百万级连接的时候，传统的 BIO 模型是无能为力的。因此，我们需要一种更高效的 I/O 处理模型来应对更高的并发量。
@@ -513,6 +520,13 @@ Java Io流共涉及40多个类，这些类看上去很杂乱，但实际上很�
 ## 37. Collections 工具类和 Arrays 工具类常见方法总结
 
 详见笔主的这篇文章: <https://gitee.com/SnailClimb/JavaGuide/blob/master/docs/java/Basis/Arrays,CollectionsCommonMethods.md>
+
+### 38. 深拷贝 vs 浅拷贝
+
+1. **浅拷贝**：对基本数据类型进行值传递，对引用数据类型进行引用传递般的拷贝，此为浅拷贝。
+2. **深拷贝**：对基本数据类型进行值传递，对引用数据类型，创建一个新的对象，并复制其内容，此为深拷贝。
+
+![deep and shallow copy](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-7/java-deep-and-shallow-copy.jpg)
 
 ## 参考
 
@@ -529,3 +543,4 @@ Java Io流共涉及40多个类，这些类看上去很杂乱，但实际上很�
 **Java工程师必备学习资源:** 一些Java工程师常用学习资源公众号后台回复关键字 **“1”** 即可免费无套路获取。 
 
 ![我的公众号](https://my-blog-to-use.oss-cn-beijing.aliyuncs.com/2019-6/167598cd2e17b8ec.png)
+
